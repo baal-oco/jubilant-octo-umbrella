@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mindfulness Prompt</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #f7f7f4;
+      --fg: #1f2933;
+      --muted: #5f6c7b;
+      --card: #ffffff;
+      --border: #d9ded8;
+      --button: #1f2933;
+      --button-text: #ffffff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121512;
+        --fg: #f2f4f1;
+        --muted: #b8c1b4;
+        --card: #1b201b;
+        --border: #303830;
+        --button: #f2f4f1;
+        --button-text: #121512;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      color: var(--fg);
+      padding: 24px;
+    }
+
+    main {
+      width: min(680px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0 0 32px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .prompt {
+      min-height: 160px;
+      display: grid;
+      align-content: center;
+      gap: 12px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .prompt-title {
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+      font-weight: 750;
+      letter-spacing: -0.03em;
+    }
+
+    .prompt-description {
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+      background: var(--button);
+      color: var(--button-text);
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+
+    footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pause.</h1>
+    <p class="subtitle">A small prompt for switching tasks deliberately.</p>
+
+    <section class="prompt" aria-live="polite">
+      <div id="promptTitle" class="prompt-title">One conscious breath</div>
+      <div id="promptDescription" class="prompt-description">Fully notice one inhale and one exhale.</div>
+    </section>
+
+    <div class="controls">
+      <button id="newPromptButton" type="button">New prompt</button>
+      <button id="copyButton" type="button" class="secondary">Copy</button>
+    </div>
+
+    <footer>Tip: pin this page or set it as a browser shortcut.</footer>
+  </main>
+
+  <script>
+    const prompts = [
+      {
+        "title": "One conscious breath",
+        "description": "Fully notice one inhale and one exhale."
+      },
+      {
+        "title": "Feel the body",
+        "description": "Notice pressure, posture, and physical sensations for a moment."
+      },
+      {
+        "title": "Open to sound",
+        "description": "Let sounds and the rest of experience appear without resisting them."
+      },
+      {
+        "title": "Notice thoughts as thoughts",
+        "description": "See planning or worry as mental events, not commands."
+      },
+      {
+        "title": "Look for the self",
+        "description": "Briefly check whether you can find the one who is distracted."
+      },
+      {
+        "title": "Pause, then begin",
+        "description": "Stop, reset attention, and start the next task deliberately."
+      },
+      {
+        "title": "End the last task",
+        "description": "Let the previous task be finished before switching."
+      },
+      {
+        "title": "Release tension",
+        "description": "Notice tightness in the body and soften it."
+      },
+      {
+        "title": "Reset attention",
+        "description": "Bring awareness back to the present before continuing."
+      },
+      {
+        "title": "Start consciously",
+        "description": "Choose the next action rather than sliding into it automatically."
+      },
+      {
+        "title": "Arrive here",
+        "description": "Notice that this moment is already happening before you improve it."
+      },
+      {
+        "title": "Feel your feet",
+        "description": "Put attention in the soles of your feet for one full breath."
+      },
+      {
+        "title": "Drop the shoulders",
+        "description": "Notice your shoulders and let them fall by one percent."
+      },
+      {
+        "title": "Unclench the jaw",
+        "description": "Find any holding in your jaw and soften it slightly."
+      },
+      {
+        "title": "Notice the hands",
+        "description": "Feel your hands from the inside for a few seconds."
+      },
+      {
+        "title": "Listen first",
+        "description": "Hear the next sound before naming what made it."
+      },
+      {
+        "title": "See the room",
+        "description": "Notice shapes, light, and colour without adding a story."
+      },
+      {
+        "title": "Name the mode",
+        "description": "Quietly note whether you are rushing, avoiding, planning, or reacting."
+      },
+      {
+        "title": "Single next action",
+        "description": "Identify the very next physical action and do only that."
+      },
+      {
+        "title": "Let the screen be seen",
+        "description": "Notice the whole screen as colour and light before reading."
+      },
+      {
+        "title": "Check the breath",
+        "description": "Notice whether the breath is shallow, held, or relaxed."
+      },
+      {
+        "title": "Soften the face",
+        "description": "Release the forehead, eyes, and mouth before continuing."
+      },
+      {
+        "title": "Feel contact",
+        "description": "Notice where your body touches the chair, floor, or desk."
+      },
+      {
+        "title": "Open the peripheral view",
+        "description": "Include the edges of your vision, not just the centre."
+      },
+      {
+        "title": "No need to rush",
+        "description": "Feel the urge to speed up without obeying it immediately."
+      },
+      {
+        "title": "Notice the transition",
+        "description": "Recognise this as a task switch, not just another blur."
+      },
+      {
+        "title": "Reset the posture",
+        "description": "Sit or stand in a way that supports clear attention."
+      },
+      {
+        "title": "Let a thought pass",
+        "description": "Watch one thought arise and fade without following it."
+      },
+      {
+        "title": "Hear the silence",
+        "description": "Notice the quiet underneath or between sounds."
+      },
+      {
+        "title": "Return to now",
+        "description": "Drop the previous task and locate yourself in the present."
+      },
+      {
+        "title": "Check intention",
+        "description": "Ask what you are trying to do before starting."
+      },
+      {
+        "title": "One thing only",
+        "description": "Let the next minute belong to one task."
+      },
+      {
+        "title": "Notice resistance",
+        "description": "Feel any reluctance as sensation before negotiating with it."
+      },
+      {
+        "title": "Breathe out fully",
+        "description": "Let the exhale complete before the next action."
+      },
+      {
+        "title": "Let go of residue",
+        "description": "Notice any emotional aftertaste from the last task and release it."
+      },
+      {
+        "title": "Look gently",
+        "description": "Soften your gaze and let the visual field come to you."
+      },
+      {
+        "title": "Feel gravity",
+        "description": "Notice the body being held by the chair, floor, or ground."
+      },
+      {
+        "title": "Stop adding commentary",
+        "description": "Observe the moment before explaining it to yourself."
+      },
+      {
+        "title": "Notice impatience",
+        "description": "Find impatience in the body, not as a concept."
+      },
+      {
+        "title": "Begin cleanly",
+        "description": "Start the next task without carrying the last one into it."
+      },
+      {
+        "title": "Check the tempo",
+        "description": "Notice whether your mind is moving faster than the task requires."
+      },
+      {
+        "title": "Relax the grip",
+        "description": "Loosen your hands, mouse grip, or phone grip slightly."
+      },
+      {
+        "title": "Widen attention",
+        "description": "Include breath, body, sound, and sight at the same time."
+      },
+      {
+        "title": "Let it be enough",
+        "description": "Allow this one breath to be the whole practice."
+      },
+      {
+        "title": "Find stillness",
+        "description": "Notice what is already still while thoughts move."
+      },
+      {
+        "title": "Notice effort",
+        "description": "Feel how much force you are adding, then reduce it slightly."
+      },
+      {
+        "title": "Use the doorframe",
+        "description": "At the threshold of a new task, pause for one breath."
+      },
+      {
+        "title": "Close the loop",
+        "description": "Mentally mark the last task as complete or parked."
+      },
+      {
+        "title": "Open the loop",
+        "description": "Name the task you are about to enter."
+      },
+      {
+        "title": "Check for autopilot",
+        "description": "Notice whether you are choosing or merely continuing momentum."
+      },
+      {
+        "title": "Return to sensation",
+        "description": "Shift from thinking about the body to feeling it directly."
+      },
+      {
+        "title": "Hear without reaching",
+        "description": "Let sound arrive without leaning toward it."
+      },
+      {
+        "title": "Notice the first impulse",
+        "description": "Before acting, notice the urge that starts the action."
+      },
+      {
+        "title": "Let the breath breathe",
+        "description": "Notice that breathing happens without you managing it."
+      },
+      {
+        "title": "Pause the narrative",
+        "description": "Drop the story for one second and feel what remains."
+      },
+      {
+        "title": "Feel the chest",
+        "description": "Notice movement, pressure, or stillness in the chest."
+      },
+      {
+        "title": "Feel the belly",
+        "description": "Notice the belly move or rest for one breath."
+      },
+      {
+        "title": "Notice mood",
+        "description": "Recognise the current emotional weather without fixing it."
+      },
+      {
+        "title": "Lower the speed",
+        "description": "Do the first movement of the next task slightly slower."
+      },
+      {
+        "title": "Begin with care",
+        "description": "Treat the first click, sentence, or step as deliberate."
+      },
+      {
+        "title": "No extra problem",
+        "description": "Notice whether the mind is adding a problem on top of the task."
+      },
+      {
+        "title": "Release the forehead",
+        "description": "Let the brow smooth before you continue."
+      },
+      {
+        "title": "Look for tension",
+        "description": "Scan for one tight spot and soften around it."
+      },
+      {
+        "title": "Let sounds be sounds",
+        "description": "Hear sound as raw vibration before judging it."
+      },
+      {
+        "title": "Notice expectation",
+        "description": "Feel what you expect to happen next, then return to now."
+      },
+      {
+        "title": "Make space",
+        "description": "Let the current experience be here without crowding it."
+      },
+      {
+        "title": "Drop the mental tab",
+        "description": "Close the inner tab from the previous task."
+      },
+      {
+        "title": "Touch the desk",
+        "description": "Feel the texture or temperature of the desk or keyboard."
+      },
+      {
+        "title": "Notice the breath at the nose",
+        "description": "Feel air moving at the nostrils for one breath."
+      },
+      {
+        "title": "Notice completion",
+        "description": "Acknowledge that one thing has ended before another begins."
+      },
+      {
+        "title": "Ask what matters",
+        "description": "Name the useful purpose of the next task."
+      },
+      {
+        "title": "Do not brace",
+        "description": "Notice if you are physically bracing for the next thing."
+      },
+      {
+        "title": "Let the body lead",
+        "description": "Feel the body before engaging the mind."
+      },
+      {
+        "title": "Stay with one exhale",
+        "description": "Follow the exhale from beginning to end."
+      },
+      {
+        "title": "Notice wanting",
+        "description": "Feel the pull to be elsewhere, then stay here briefly."
+      },
+      {
+        "title": "Allow the pause",
+        "description": "Let a short pause exist without filling it."
+      },
+      {
+        "title": "Clear the slate",
+        "description": "Take one breath as if no previous task existed."
+      },
+      {
+        "title": "Set down the load",
+        "description": "Imagine placing the last task down for now."
+      },
+      {
+        "title": "Notice the cursor",
+        "description": "See the cursor or pointer before using it."
+      },
+      {
+        "title": "Feel the next keystroke",
+        "description": "Notice your hand before pressing the next key."
+      },
+      {
+        "title": "Relax the tongue",
+        "description": "Let the tongue rest and release hidden tension."
+      },
+      {
+        "title": "Check the eyes",
+        "description": "Notice whether your eyes are strained or softened."
+      },
+      {
+        "title": "Breathe before reply",
+        "description": "Before responding, feel one breath and one body sensation."
+      },
+      {
+        "title": "See thought appear",
+        "description": "Catch the next thought as an appearance, not a fact."
+      },
+      {
+        "title": "Choose the pace",
+        "description": "Start at a pace you can actually sustain."
+      },
+      {
+        "title": "Let awareness include stress",
+        "description": "Notice stress as part of the field, not the whole field."
+      },
+      {
+        "title": "Notice control",
+        "description": "Feel the impulse to control the moment and soften it."
+      },
+      {
+        "title": "Enter the task",
+        "description": "Mentally step into the next task rather than drifting into it."
+      },
+      {
+        "title": "Feel the whole body",
+        "description": "Sense the body as one field for a few seconds."
+      },
+      {
+        "title": "Use the first sip",
+        "description": "If drinking, fully notice the first sip."
+      },
+      {
+        "title": "Use the first step",
+        "description": "If moving, fully notice the first step."
+      },
+      {
+        "title": "Use the first click",
+        "description": "If working digitally, fully notice the first click."
+      },
+      {
+        "title": "Find the breath again",
+        "description": "Return to the breath without judging the distraction."
+      },
+      {
+        "title": "Let the mind settle",
+        "description": "Give the mind one second to arrive before demanding output."
+      },
+      {
+        "title": "Notice urgency",
+        "description": "Feel urgency as energy in the body, then choose deliberately."
+      },
+      {
+        "title": "Check alignment",
+        "description": "Ask whether the next action matches the task you intend."
+      },
+      {
+        "title": "Release the last sentence",
+        "description": "Let the last email, message, or thought stop echoing."
+      },
+      {
+        "title": "Hold attention lightly",
+        "description": "Focus without squeezing the mind around the task."
+      },
+      {
+        "title": "Notice the background",
+        "description": "Include background sounds, space, and body while working."
+      },
+      {
+        "title": "Reset the hands",
+        "description": "Place your hands deliberately before beginning."
+      },
+      {
+        "title": "Exhale the switch",
+        "description": "Use one out-breath to mark the transition."
+      },
+      {
+        "title": "Quiet the inner voice",
+        "description": "Notice self-talk and let it fade into the background."
+      },
+      {
+        "title": "Begin from enough",
+        "description": "Start from the sense that nothing needs to be forced this second."
+      },
+      {
+        "title": "Find one sensation",
+        "description": "Pick one body sensation and stay with it briefly."
+      },
+      {
+        "title": "Notice mental leaning",
+        "description": "Feel the mind leaning into the future and come back."
+      },
+      {
+        "title": "Let the task be simple",
+        "description": "Reduce the next task to its first concrete step."
+      },
+      {
+        "title": "Meet the moment",
+        "description": "Notice what is present before trying to change it."
+      },
+      {
+        "title": "Rest attention",
+        "description": "Let attention rest on breath, body, or sound for one moment."
+      },
+      {
+        "title": "Check the story",
+        "description": "Ask what story you are carrying into this task."
+      },
+      {
+        "title": "Unhook from planning",
+        "description": "Notice planning as a thought and return to the first action."
+      },
+      {
+        "title": "Feel the pause after exhale",
+        "description": "Rest in the small gap after breathing out."
+      },
+      {
+        "title": "Let the previous self finish",
+        "description": "Do not drag the mood of the last task into this one."
+      },
+      {
+        "title": "Be exactly here",
+        "description": "Notice the fact of sitting, standing, seeing, and breathing."
+      },
+      {
+        "title": "Start without drama",
+        "description": "Begin the next task plainly, without adding mental weight."
+      }
+    ];
+
+    const promptTitle = document.getElementById("promptTitle");
+    const promptDescription = document.getElementById("promptDescription");
+    const newPromptButton = document.getElementById("newPromptButton");
+    const copyButton = document.getElementById("copyButton");
+
+    let currentIndex = 0;
+    let previousIndex = -1;
+
+    function choosePrompt() {
+      if (prompts.length === 1) return 0;
+
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * prompts.length);
+      } while (nextIndex === previousIndex);
+
+      previousIndex = nextIndex;
+      return nextIndex;
+    }
+
+    function showPrompt(index) {
+      const prompt = prompts[index];
+      currentIndex = index;
+      promptTitle.textContent = prompt.title;
+      promptDescription.textContent = prompt.description;
+    }
+
+    async function copyPrompt() {
+      const prompt = prompts[currentIndex];
+      const text = `${prompt.title} — ${prompt.description}`;
+      await navigator.clipboard.writeText(text);
+      copyButton.textContent = "Copied";
+      setTimeout(() => { copyButton.textContent = "Copy"; }, 1200);
+    }
+
+    newPromptButton.addEventListener("click", () => showPrompt(choosePrompt()));
+    copyButton.addEventListener("click", copyPrompt);
+  </script>
+</body>
+</html>
+
